@@ -3,6 +3,7 @@ plugins {
 }
 
 android {
+    namespace "com.blog.autopost"
     compileSdk 34
 
     defaultConfig {
