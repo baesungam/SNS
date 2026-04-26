@@ -3,7 +3,7 @@ name: APK 빌드
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:        # GitHub에서 수동 실행 버튼
+  workflow_dispatch:
 
 jobs:
   build:
@@ -19,24 +19,27 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Android SDK 설정
+      uses: android-actions/setup-android@v3
+
+    - name: Android 34 플랫폼 및 빌드툴 설치
+      run: |
+        sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
     - name: Gradle 8.0 설치
       uses: gradle/actions/setup-gradle@v4
       with:
         gradle-version: '8.0'
 
-    - name: Android SDK 라이선스 동의
+    - name: Gradle Wrapper 생성
+      working-directory: android_app
       run: |
-        yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
-    - name: Android SDK 플랫폼 설치
-      run: |
-        ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager \
-          "platforms;android-34" \
-          "build-tools;34.0.0"
+        gradle wrapper --gradle-version=8.0 --distribution-type=bin
+        chmod +x gradlew
 
     - name: Debug APK 빌드
       working-directory: android_app
-      run: gradle assembleDebug --no-daemon --stacktrace
+      run: ./gradlew assembleDebug --no-daemon --stacktrace
 
     - name: APK 업로드 (다운로드 가능)
       uses: actions/upload-artifact@v4
@@ -44,16 +47,3 @@ jobs:
         name: SNS전문가-앱-debug
         path: android_app/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
-
-    - name: 빌드 결과 요약
-      run: |
-        APK_PATH="android_app/app/build/outputs/apk/debug/app-debug.apk"
-        if [ -f "$APK_PATH" ]; then
-          SIZE=$(du -sh "$APK_PATH" | cut -f1)
-          echo "✅ APK 빌드 성공!"
-          echo "📦 파일 크기: $SIZE"
-          echo "📥 위의 Artifacts 섹션에서 다운로드 가능"
-        else
-          echo "❌ APK 파일을 찾을 수 없습니다"
-          exit 1
-        fi
