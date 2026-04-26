@@ -1,0 +1,29 @@
+# 환경변수 (비밀키 포함 — 절대 올리지 않음)
+.env
+naver_cookies.json
+
+# 로그
+*.log
+naver_post.log
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Android 빌드 결과물
+android_app/app/build/
+android_app/build/
+android_app/.gradle/
+android_app/local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

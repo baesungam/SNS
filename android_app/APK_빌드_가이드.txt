@@ -1,0 +1,55 @@
+═══════════════════════════════════════════════════════
+  블로그 자동 포스팅 — Android APK 빌드 가이드
+═══════════════════════════════════════════════════════
+
+[STEP 1] Railway에 앱 배포 (URL 획득)
+────────────────────────────────────────
+1. https://railway.app 회원가입 (GitHub 로그인)
+2. "New Project" → "Deploy from GitHub repo" 선택
+3. 이 프로젝트 폴더를 GitHub에 올리거나
+   "Empty Project" → Deploy 탭에서 Docker 선택
+4. 환경변수 설정:
+     ANTHROPIC_API_KEY = sk-ant-...
+     NAVER_ID          = beasia2
+     NAVER_PW          = !bsa3213500
+     NAVER_BLOG_ID     = nowgo-
+     HEADLESS          = true
+5. 배포 완료 후 생성된 URL 복사
+   예시: https://sns-expert-production.railway.app
+
+[STEP 2] APK URL 수정
+────────────────────────────────────────
+파일: android_app/app/src/main/java/com/blog/autopost/MainActivity.java
+아래 줄을 실제 URL로 수정:
+
+  private static final String APP_URL = "https://YOUR-APP.railway.app";
+                                         ↓
+  private static final String APP_URL = "https://실제URL.railway.app";
+
+[STEP 3] Android Studio로 APK 빌드
+────────────────────────────────────────
+1. Android Studio 설치 (없으면)
+   → https://developer.android.com/studio
+
+2. Android Studio 실행 →
+   "Open" → android_app 폴더 선택
+
+3. Gradle Sync 완료 대기 (최초 5~10분)
+
+4. 메뉴: Build → Build Bundle(s)/APK(s) → Build APK(s)
+
+5. APK 위치:
+   android_app/app/build/outputs/apk/debug/app-debug.apk
+
+[STEP 4] 폰에 설치
+────────────────────────────────────────
+1. 폰 설정 → 보안 → "출처를 알 수 없는 앱 설치" 허용
+2. app-debug.apk 파일을 폰으로 전송 (카카오톡, USB 등)
+3. 파일 탐색기에서 APK 탭해서 설치
+
+═══════════════════════════════════════════════════════
+  참고: 서버 비용
+═══════════════════════════════════════════════════════
+Railway 무료 플랜: 월 $5 크레딧 제공 (소규모 사용 무료)
+Render.com 대안: https://render.com (무료 플랜 있음)
+═══════════════════════════════════════════════════════
