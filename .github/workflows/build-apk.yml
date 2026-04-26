@@ -5,6 +5,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,15 +22,28 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: 환경 확인 (진단용)
+      run: |
+        echo "=== Java ==="
+        java -version
+        echo "=== ANDROID_HOME ==="
+        echo $ANDROID_HOME
+        echo "=== cmdline-tools 경로 확인 ==="
+        ls $ANDROID_HOME/cmdline-tools/ || echo "cmdline-tools 없음"
+
     - name: Android Command-line Tools 설치
       run: |
         mkdir -p $HOME/android-sdk/cmdline-tools
+        echo "다운로드 중..."
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip \
           -O /tmp/cmdline-tools.zip
+        echo "압축 해제 중..."
         unzip -q /tmp/cmdline-tools.zip -d /tmp/
         mv /tmp/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+        echo "설치 완료"
+        ls $HOME/android-sdk/cmdline-tools/latest/bin/
 
-        echo "ANDROID_HOME=$HOME/android-sdk"    >> $GITHUB_ENV
+        echo "ANDROID_HOME=$HOME/android-sdk"     >> $GITHUB_ENV
         echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
         echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
@@ -41,12 +57,15 @@ jobs:
         wget -q https://services.gradle.org/distributions/gradle-8.0-bin.zip -O /tmp/gradle.zip
         unzip -q /tmp/gradle.zip -d /opt/gradle
         echo "/opt/gradle/gradle-8.0/bin" >> $GITHUB_PATH
+        echo "Gradle 설치 완료"
 
     - name: Gradle Wrapper 생성
       working-directory: android_app
       run: |
         gradle wrapper --gradle-version=8.0 --distribution-type=bin
         chmod +x gradlew
+        echo "Wrapper 생성 완료"
+        ls -la gradlew
 
     - name: APK 빌드
       working-directory: android_app
