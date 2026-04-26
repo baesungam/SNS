@@ -19,15 +19,24 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Android SDK 라이선스 동의 및 플랫폼 설치
+    - name: Android Command-line Tools 설치
       run: |
-        echo "ANDROID_HOME: $ANDROID_HOME"
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-          "platforms;android-34" \
-          "build-tools;34.0.0"
+        mkdir -p $HOME/android-sdk/cmdline-tools
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip \
+          -O /tmp/cmdline-tools.zip
+        unzip -q /tmp/cmdline-tools.zip -d /tmp/
+        mv /tmp/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
 
-    - name: Gradle 8.0 직접 설치
+        echo "ANDROID_HOME=$HOME/android-sdk"    >> $GITHUB_ENV
+        echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+        echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
+    - name: SDK 라이선스 동의 및 플랫폼 설치
+      run: |
+        yes | sdkmanager --licenses
+        sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
+    - name: Gradle 8.0 설치
       run: |
         wget -q https://services.gradle.org/distributions/gradle-8.0-bin.zip -O /tmp/gradle.zip
         unzip -q /tmp/gradle.zip -d /opt/gradle
